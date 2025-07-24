@@ -1,0 +1,49 @@
+# Archivos de Bytecode y Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Directorios de distribución / empaquetado
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Entornos virtuales
+# Cambia 'venv' por el nombre de tu entorno si es diferente (ej: env, .venv)
+venv/
+env/
+.venv/
+
+# Archivos de variables de entorno
+# ¡MUY IMPORTANTE! Nunca subas tus secretos o claves de API al repositorio.
+.env
+*.env
+
+# Bases de datos locales
+# Si usas una base de datos local como SQLite para pruebas
+*.sqlite3
+*.db
+
+# Archivos de configuración de IDEs y editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+logs/
+
+# Reportes de pruebas y cobertura
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Archivos de Jupyter Notebook (si los usas)
+.ipynb_checkpoints
