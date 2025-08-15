@@ -95,6 +95,6 @@ class RecommendationService:
         result_plants = []
         for record in aux_rec:
             aux = await PlantRepository().get_plant_by_id(record)
-            result_plants.append(aux.model_dump().get('scientific_name'))
+            result_plants.append(aux.model_dump())
         return result_plants
     

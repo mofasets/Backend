@@ -4,8 +4,6 @@ from beanie.operators import In
 from bson import ObjectId
 from fastapi import HTTPException
 
-
-
 class PlantRepository:
     """
     Gestiona las operaciones CRUD para la colección de Plantas en la base de datos.
@@ -31,10 +29,6 @@ class PlantRepository:
             In(Plant.specific_diseases, ailments)
         ).limit(limit).to_list()
     
-    async def get_suggested_plants(self, user_id: str) -> List[Plant]:
-        #TODO: you have to create the recommendation system and use it here.
-        return await Plant.find_all().limit(10).to_list()
-
     async def get_plants_by_query(self, query: str, limit: int = 10) -> List[Plant]:
         pipeline = [
             {
