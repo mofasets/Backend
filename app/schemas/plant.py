@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from beanie import Document
+from bson import ObjectId
 
 class Plant(Document):
     """

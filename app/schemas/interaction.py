@@ -1,19 +1,18 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from beanie import Document
-
+from pydantic import Field
+from beanie import Document, PydanticObjectId
+from datetime import datetime
 
 class Interaction(Document):
-    user_id: int
-    plant_id: int
+    user_id: PydanticObjectId
+    plant_id: PydanticObjectId
     interaction_type: str #'view', 'recognize'
-    timestamp: str # ISO 8601 format
+    interaction_date: str # ISO 8601 format
 
     class Settings:
         name = "interactions"
+        
+    class Config:
+        from_attributes = True
+        json_encoders = {PydanticObjectId: str}
 
-class InteractionUpdate(BaseModel):
-    user_id: Optional[int] = None
-    plant_id: Optional[int] = None
-    interaction_type: Optional[str] = None #'view', 'recognize'
-    timestamp: Optional[str] = None # ISO 8601 format
+

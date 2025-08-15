@@ -52,3 +52,7 @@ class PlantRepository:
         plants = await Plant.aggregate(aggregation_pipeline=pipeline, projection_model=Plant) \
             .to_list()
         return plants
+    
+    async def get_all_plants(self):
+        result = await Plant.find_all().to_list()
+        return result

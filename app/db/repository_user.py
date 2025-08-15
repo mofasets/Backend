@@ -1,7 +1,8 @@
-from app.schemas.user import User, UserUpdate, UserRead
+from app.schemas.user import User, UserUpdate, UserRead, UserCreate
 from typing import Optional
 from bson import ObjectId
 from fastapi import HTTPException
+from app.core.security import get_password_hash
 
 
 class UserRepository:
@@ -30,3 +31,31 @@ class UserRepository:
             if update_result:
                 user_to_update = await User.find_one({"_id": ObjectId(id)})
         return user_to_update
+    
+    async def get_user_by_email(self, email: str) -> Optional[User]:
+        """
+        Busca un usuario por su email.
+        """
+        user = await User.find_one({"email": email})
+        return user
+
+    async def create_user(self, user_data: UserCreate) -> User:
+        """
+        Crea un nuevo usuario en la base de datos.
+        """
+        existing_user = await self.get_user_by_email(user_data.email)
+        if existing_user:
+            return None
+        
+        # 2. Hashear la contraseña antes de guardarla
+        hashed_password = get_password_hash(user_data.password)
+        user_obj = User(
+            name=user_data.name, 
+            email=user_data.email,
+            birth_date=user_data.birth_date,
+            gender=user_data.gender,
+            phone=user_data.phone,
+            country=user_data.country
+        )
+        await user_obj.create()
+        return user_obj

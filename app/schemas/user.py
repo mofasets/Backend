@@ -32,9 +32,13 @@ class UserRead(BaseModel):
         json_encoders = {PydanticObjectId: str}
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    # password: str 
     name: str
+    email: EmailStr
+    password: str
+    birth_date: str
+    gender: str
+    phone: str
+    country: str
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None

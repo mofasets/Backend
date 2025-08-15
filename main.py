@@ -1,25 +1,21 @@
 from fastapi import FastAPI
-from app.api.routers import search, explore, settings
+from app.api.routers import search, explore, settings, auth
 from contextlib import asynccontextmanager
 from app.db.database import init_db
 from app.core.config import config_settings
+from app.services.recommendation_service import RecommendationService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
         Gestiona las tareas de arranque y apagado de la aplicación.
     """
-    # --- CÓDIGO DE ARRANQUE ---
-    # Esto se ejecuta ANTES de que la aplicación empiece a recibir peticiones.
     print("Iniciando aplicación y conectando a la base de datos...")
     await init_db()
-    
-    yield # La aplicación se ejecuta y gestiona peticiones a partir de aquí.
-    
-    # --- CÓDIGO DE APAGADO ---
-    # Esto se ejecuta CUANDO la aplicación se está cerrando (ej. con Ctrl+C).
+    app.state.recommender = RecommendationService()
+    await app.state.recommender.load_model()
+    yield 
     print("Cerrando la aplicación...")
-    # Aquí podrías añadir lógica para cerrar conexiones si fuera necesario.
 
 
 # Instancia principal de la aplicación
@@ -35,3 +31,5 @@ app.version = '0.0.1'
 app.include_router(explore.explore_router)
 app.include_router(search.search_router)
 app.include_router(settings.settings_router)
+app.include_router(auth.auth_router)
+
