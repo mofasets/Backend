@@ -1,5 +1,5 @@
 from typing import List, Optional
-from app.schemas.plant import Plant
+from app.schemas.plant import Plant, PlantRead
 from beanie.operators import In
 from bson import ObjectId
 from fastapi import HTTPException

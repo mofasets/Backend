@@ -47,7 +47,6 @@ class UserRepository:
         if existing_user:
             return None
         
-        # 2. Hashear la contraseña antes de guardarla
         hashed_password = get_password_hash(user_data.password)
         user_obj = User(
             name=user_data.name, 

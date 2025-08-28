@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
+from bson import ObjectId
 from typing import Optional
 from beanie import Document, PydanticObjectId
 
@@ -17,7 +18,7 @@ class User(Document):
         name = "users"
 
 class UserRead(BaseModel):
-    id: PydanticObjectId = Field(alias="_id")
+    id: str
     name: Optional[str] = None
     email: EmailStr
     birth_date: Optional[str] = None
@@ -25,6 +26,15 @@ class UserRead(BaseModel):
     # img_url: Optional[str] = None
     phone: Optional[str] = None
     country: Optional[str] = None
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def convert_objectid_to_str(cls, v):
+        """Convierte el ObjectId a string antes de la validación."""
+        if isinstance(v, ObjectId):
+            return str(v)
+        return v
+
 
     class Config:
         from_attributes = True

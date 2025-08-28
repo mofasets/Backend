@@ -8,12 +8,13 @@ from app.db.repository_user import UserRepository
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 users = UserRepository()
 
-def encode_token(payload: dict) -> str:
+async def encode_token(payload: dict) -> str:
     token = jwt.encode(payload, config_settings.JWT_SECRET_KEY, config_settings.ALGORITHM)
     return token
 
-def decode_token(token: str = Depends(oauth2_scheme)) -> dict:
+async def decode_token(token: str = Depends(oauth2_scheme)) -> dict:
     data = jwt.decode(token, config_settings.JWT_SECRET_KEY, config_settings.ALGORITHM)
-    return users.get_user_by_email(data.get('username'))
+    user = await users.get_user_by_email(data.get('username'))
+    return user
 
 

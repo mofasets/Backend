@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from beanie import Document
 from bson import ObjectId
@@ -15,3 +15,36 @@ class Plant(Document):
 
     class Settings:
         name = "plants"
+
+class PlantRead(BaseModel):
+    """
+    Modelo Pydantic para las respuestas de la API.
+    Convierte el ObjectId de la base de datos a un string.
+    """
+    id: str
+    scientific_name: str 
+    common_names: List[str] 
+    habitat_description: str
+    general_ailments: str
+    specific_diseases: List[str]
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def convert_objectid_to_str(cls, v):
+        """Convierte el ObjectId a string antes de la validación."""
+        if isinstance(v, ObjectId):
+            return str(v)
+        return v
+
+    class Config:
+        from_attributes = True
+
+class RecognitionResponse(BaseModel):
+    """
+    Modelo que representa la respuesta completa del endpoint de reconocimiento de imágenes.
+    """
+    img_result: Plant
+    suggested_plants: List[PlantRead]
+
+    class Config:
+        from_attributes = True

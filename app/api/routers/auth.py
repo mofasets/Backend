@@ -22,7 +22,7 @@ async def login(form_data = Depends(OAuth2PasswordRequestForm), user_repo: UserR
     user = await user_repo.get_user_by_email(form_data.username)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Incorrect Username or Password')
-    token = encode_token({'sub': user.email}) # 'sub' es el claim estándar para el identificador
+    token = await encode_token({'sub': user.email}) # 'sub' es el claim estándar para el identificador
     return {
         'access_token': token,
         'token_type': 'bearer'    
