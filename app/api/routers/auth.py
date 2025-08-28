@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from app.db.repository_user import UserRepository
 from fastapi.exceptions import HTTPException
-from app.schemas.auth import encode_token
+from app.schemas.auth import encode_token, decode_token
 from app.schemas.user import UserCreate, UserRead, User
 
 auth_router = APIRouter(prefix='/auth')
@@ -27,3 +27,7 @@ async def login(form_data = Depends(OAuth2PasswordRequestForm), user_repo: UserR
         'access_token': token,
         'token_type': 'bearer'    
     }
+
+@auth_router.get('/me', tags=TAGS, response_model=UserRead)
+async def get_me(my_user=Depends(decode_token)):
+    return my_user

@@ -4,6 +4,10 @@ from app.api.routers import auth
 from jose import jwt
 from app.core.config import config_settings
 from app.db.repository_user import UserRepository
+from app.schemas.user import User
+from fastapi import Depends, HTTPException, status
+from jose import JWTError
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 users = UserRepository()
@@ -14,7 +18,5 @@ async def encode_token(payload: dict) -> str:
 
 async def decode_token(token: str = Depends(oauth2_scheme)) -> dict:
     data = jwt.decode(token, config_settings.JWT_SECRET_KEY, config_settings.ALGORITHM)
-    user = await users.get_user_by_email(data.get('username'))
+    user = await users.get_user_by_email(data.get('sub'))
     return user
-
-
