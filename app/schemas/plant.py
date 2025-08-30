@@ -38,7 +38,10 @@ class PlantRead(BaseModel):
 
     class Config:
         from_attributes = True
-
+        arbitrary_types_allowed = True
+        json_encoders = {
+            ObjectId: str  # Cuando encuentres un ObjectId, conviértelo a string
+        }
 class RecognitionResponse(BaseModel):
     """
     Modelo que representa la respuesta completa del endpoint de reconocimiento de imágenes.
