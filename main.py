@@ -5,6 +5,7 @@ from app.db.database import init_db
 from app.core.config import config_settings
 from app.services.recommendation_service import RecommendationService
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,6 +39,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(explore.explore_router)
 app.include_router(search.search_router)

@@ -7,10 +7,9 @@ from beanie import Document, PydanticObjectId
 class User(Document):
     name: Optional[str] = None
     email: EmailStr
-    # hashed_password: Optional[str] = None
+    password: Optional[str] = None
     birth_date: Optional[str] = None
-    gender: Optional[str] = None
-    # img_url: Optional[str] = None
+    gender: str = None
     phone: Optional[str] = None
     country: Optional[str] = None
 
@@ -23,7 +22,6 @@ class UserRead(BaseModel):
     email: EmailStr
     birth_date: Optional[str] = None
     gender: Optional[str] = None
-    # img_url: Optional[str] = None
     phone: Optional[str] = None
     country: Optional[str] = None
 

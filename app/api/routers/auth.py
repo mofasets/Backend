@@ -4,10 +4,14 @@ from app.db.repository_user import UserRepository
 from fastapi.exceptions import HTTPException
 from app.schemas.auth import encode_token, decode_token
 from app.schemas.user import UserCreate, UserRead, User
+import bcrypt
 
 auth_router = APIRouter(prefix='/auth')
 TAGS = ['Auth']
 
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Compara una contraseña en texto plano con su hash."""
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 @auth_router.post('/register', tags=TAGS, response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def register_user(user_data: UserCreate, user_repo: UserRepository = Depends(UserRepository)):
@@ -17,10 +21,10 @@ async def register_user(user_data: UserCreate, user_repo: UserRepository = Depen
     return created_user
 
 
-@auth_router.post('/token', tags=TAGS) # Tu endpoint de login existente
+@auth_router.post('/token', tags=TAGS) 
 async def login(form_data = Depends(OAuth2PasswordRequestForm), user_repo: UserRepository = Depends(UserRepository)):
     user = await user_repo.get_user_by_email(form_data.username)
-    if not user:
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Incorrect Username or Password')
     token = await encode_token({'sub': user.email}) # 'sub' es el claim estándar para el identificador
     return {

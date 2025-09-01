@@ -20,3 +20,8 @@ async def decode_token(token: str = Depends(oauth2_scheme)) -> dict:
     data = jwt.decode(token, config_settings.JWT_SECRET_KEY, config_settings.ALGORITHM)
     user = await users.get_user_by_email(data.get('sub'))
     return user
+
+def get_current_user(user: User = Depends(decode_token)):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication credentials")
+    return user

@@ -7,6 +7,8 @@ import json
 PROMPT = """
 Actúa como un etnobotánico experto y un especialista en herbolaria. Tu tarea es identificar la planta en la imagen y detallar sus usos medicinales. Responde estrictamente con un único objeto JSON, sin añadir explicaciones, texto introductorio ni formato markdown.
 
+**Regla Crítica: Si la imagen proporcionada NO contiene una planta (por ejemplo, es un animal, un objeto inanimado, una persona, un paisaje sin una planta dominante, etc.), debes devolver el JSON con todos los campos como cadenas de texto vacías ("") o listas vacías ([]), según corresponda.**
+
 El objeto JSON debe seguir esta estructura exacta:
 {
   "scientific_name": "string",
@@ -18,11 +20,11 @@ El objeto JSON debe seguir esta estructura exacta:
 
 Instrucciones detalladas para el contenido de cada clave:
 
-1.  **"scientific_name"**: Proporciona el nombre científico más probable de la planta. Si es imposible identificarla, devuelve una cadena de texto vacía "".
-2.  **"common_names"**: Devuelve una lista de cadenas de texto con los nombres comunes más conocidos de la planta, priorizando los usados en Latinoamérica y España. Si no se encuentran, devuelve una lista vacía [].
-3.  **"habitat_description"**: Redacta una descripción breve del hábitat natural y las condiciones de crecimiento de esta especie. Si no dispones de esta información, devuelve una cadena de texto vacía "".
-4.  **"general_ailments"**: En una sola cadena de texto, resume las **categorías generales de dolencias humanas** que esta planta puede tratar. Por ejemplo: "Inflamación, dolor, infecciones, problemas respiratorios, reumatismo". Si no se conocen usos medicinales, devuelve una cadena de texto vacía "".
-5.  **"specific_diseases"**: Devuelve una lista de cadenas de texto con **enfermedades o condiciones humanas específicas** para las cuales se utiliza la planta. Por ejemplo: ["Artritis", "Gripe", "Cistitis", "Dolor de muelas"]. Si no se conocen aplicaciones específicas, devuelve una lista vacía [].
+1.  **"scientific_name"**: Proporciona el nombre científico más probable de la planta. **Es crucial que si es imposible identificar la planta o si la imagen no contiene una planta, devuelvas una cadena de texto vacía ""**.
+2.  **"common_names"**: Devuelve una lista de cadenas de texto con los nombres comunes más conocidos, priorizando los usados en Latinoamérica y España. Si no se encuentran o aplica la regla crítica, devuelve una lista vacía [].
+3.  **"habitat_description"**: Redacta una descripción breve del hábitat natural de la especie. Si no dispones de esta información o aplica la regla crítica, devuelve una cadena de texto vacía "".
+4.  **"general_ailments"**: En una sola cadena, resume las categorías generales de dolencias que la planta puede tratar (ej: "Inflamación, dolor, infecciones, problemas respiratorios"). Si no se conocen usos medicinales o aplica la regla crítica, devuelve una cadena de texto vacía "".
+5.  **"specific_diseases"**: Devuelve una lista de enfermedades o condiciones específicas para las cuales se utiliza la planta (ej: ["Artritis", "Gripe", "Cistitis"]). Si no se conocen aplicaciones específicas o aplica la regla crítica, devuelve una lista vacía [].
 """
 
 generation_config = {

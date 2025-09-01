@@ -12,6 +12,10 @@ class Plant(Document):
     habitat_description: str
     general_ailments: str
     specific_diseases: List[str]
+    image_filename: Optional[str] = None
+    is_verified: bool = False
+
+
 
     class Settings:
         name = "plants"
@@ -27,6 +31,10 @@ class PlantRead(BaseModel):
     habitat_description: str
     general_ailments: str
     specific_diseases: List[str]
+    image_filename: Optional[str] = None
+    is_verified: bool = False
+
+
 
     @field_validator("id", mode="before")
     @classmethod

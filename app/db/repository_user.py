@@ -2,8 +2,15 @@ from app.schemas.user import User, UserUpdate, UserRead, UserCreate
 from typing import Optional
 from bson import ObjectId
 from fastapi import HTTPException
+import bcrypt
 from app.core.security import get_password_hash
 
+def hash_password(password: str) -> str:
+    """Genera el hash de una contraseña."""
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed_password.decode('utf-8')
 
 class UserRepository:
     
@@ -47,14 +54,15 @@ class UserRepository:
         if existing_user:
             return None
         
-        hashed_password = get_password_hash(user_data.password)
+        hashed_password = hash_password(user_data.password)
         user_obj = User(
             name=user_data.name, 
             email=user_data.email,
             birth_date=user_data.birth_date,
             gender=user_data.gender,
             phone=user_data.phone,
-            country=user_data.country
+            country=user_data.country,
+            password=hashed_password
         )
         await user_obj.create()
         return user_obj

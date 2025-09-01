@@ -15,7 +15,7 @@ dist/
 venv/
 env/
 .venv/
-
+static
 # Archivos de variables de entorno
 # ¡MUY IMPORTANTE! Nunca subas tus secretos o claves de API al repositorio.
 .env
