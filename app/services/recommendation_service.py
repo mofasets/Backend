@@ -8,29 +8,41 @@ from app.db.repository_plant import PlantRepository
 from app.db.repository_interaction import InteractionRepository
 import nltk
 from nltk.corpus import stopwords
+import pickle
+from pathlib import Path
 
 # nltk.download('stopwords')
 stop_words_es = stopwords.words('spanish')
 
 class RecommendationService:
-    def __init__(self):
+    def __init__(self, model_path: str = "recommendation_model"):
+        self.model_path = Path(model_path)
         self.plants_df = None
         self.cosine_sim_matrix = None
         self.indexes = None
         self.is_ready = None
-        
-    async def load_model(self):
+        self.model_path.mkdir(parents=True, exist_ok=True)
+
+    def _get_model_files(self):
+        """Devuelve las rutas de los archivos del modelo."""
+        return {
+            "matrix": self.model_path / "cosine_sim_matrix.pkl",
+            "indexes": self.model_path / "indexes.pkl",
+            "dataframe": self.model_path / "plants_df.pkl"
+        }
+
+    async def train_and_save_model(self):
         """
             Loads data from the database and pre-calculates the similarity matrix.
             This is an 'async' function to use the asynchronous MongoDB driver.
         """
 
-        print("Loading Recommendation Model...")
-        plants_list = await PlantRepository().get_all_plants()
+        print("Training and saving new recommendation model...")
+        plants_list = await PlantRepository().get_all_verified_plants()
         if not plants_list:
-            print('Plants not found in the database. Please check the connection.')
-            return 
-        
+            print('No verified plants found. Aborting training.')
+            return    
+            
         data_in_dicts = [plant.model_dump() for plant in plants_list]
         self.plants_df = pd.DataFrame(data_in_dicts)
         self.plants_df['id'] = self.plants_df['id'].astype(str)
@@ -55,7 +67,37 @@ class RecommendationService:
 
         self.cosine_sim_matrix = cosine_similarity(tfidf_matrix, tfidf_matrix)
         self.is_ready = True
+
+        files = self._get_model_files()
+        with open(files["matrix"], "wb") as f:
+            pickle.dump(self.cosine_sim_matrix, f)
+        with open(files["indexes"], "wb") as f:
+            pickle.dump(self.indexes, f)
+        with open(files["dataframe"], "wb") as f:
+            pickle.dump(self.plants_df, f)
         print("✅ Modelo de recomendación cargado y listo.")
+
+    def load_model_from_disk(self):
+        """
+        Esta función carga el modelo pre-calculado desde los archivos.
+        Es súper rápida y es lo que tu app de FastAPI usará al arrancar.
+        """
+        print("Loading pre-trained model from disk...")
+        files = self._get_model_files()
+        
+        try:
+            with open(files["matrix"], "rb") as f:
+                self.cosine_sim_matrix = pickle.load(f)
+            with open(files["indexes"], "rb") as f:
+                self.indexes = pickle.load(f)
+            with open(files["dataframe"], "rb") as f:
+                self.plants_df = pickle.load(f)
+            
+            self.is_ready = True
+            print("✅ Recommendation model loaded and ready.")
+        except FileNotFoundError:
+            print("🚨 Model files not found. Please train the model first.")
+            self.is_ready = False
 
     async def get_recommendations(self, user_id: str, top_n: int = 10) -> List[str]:
         """
@@ -98,3 +140,7 @@ class RecommendationService:
             result_plants.append(aux.model_dump())
         return result_plants
     
+if __name__ == "__main__":
+    print("Starting nightly model training...")
+    asyncio.run(main())
+    print("Training finished.")

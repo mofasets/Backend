@@ -9,6 +9,8 @@ class Interaction(Document):
     plant_id: PydanticObjectId
     interaction_type: str #'view', 'recognize'
     interaction_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
                  
     class Settings:
         name = "interactions"

@@ -13,11 +13,16 @@ async def show_item(item_id: str, plant_repo: PlantRepository = Depends(PlantRep
     plant = await plant_repo.get_plant_by_id(item_id)
 
     if plant and my_user:
-        content = {
-            'user_id': my_user.id,
-            'plant_id':plant.id,
-            'interaction_type': 'view'
-        }
-        await interaction_repo.add_interaction(content)
+        existing_interaction = await interaction_repo.find_view_interaction_today(
+            user_id=my_user.id,
+            plant_id=plant.id
+        )
         
+        if not existing_interaction:
+            content = {
+                'user_id': my_user.id,
+                'plant_id': plant.id,
+                'interaction_type': 'view'
+            }
+            await interaction_repo.add_interaction(content)        
     return plant

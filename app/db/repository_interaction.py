@@ -2,7 +2,7 @@ from app.schemas.interaction import Interaction
 from typing import List
 from bson import ObjectId
 from fastapi.exceptions import HTTPException
-import datetime
+from datetime import datetime, timedelta, time
 
 
 class InteractionRepository:
@@ -28,3 +28,20 @@ class InteractionRepository:
         )
         await interaction.insert()
         return interaction
+    
+    async def find_view_interaction_today(self, user_id: str, plant_id: str) -> Interaction:
+        """Busca una interacción de vista de hoy."""
+        today_start = datetime.combine(datetime.now().date(), time.min)
+        tomorrow_start = today_start + timedelta(days=1)
+        query = {
+            'user_id': user_id,
+            'plant_id': plant_id,
+            'interaction_type': 'view',
+            'created_at': {
+                '$gte': today_start,
+                '$lt': tomorrow_start
+            }
+        }
+
+        interaction_document = await Interaction.find_one(query)
+        return interaction_document

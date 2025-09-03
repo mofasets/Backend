@@ -4,6 +4,8 @@ from bson import ObjectId
 from fastapi import HTTPException
 import bcrypt
 from app.core.security import get_password_hash
+from datetime import datetime
+
 
 def hash_password(password: str) -> str:
     """Genera el hash de una contraseña."""
@@ -32,6 +34,7 @@ class UserRepository:
         """
         user_to_update = await self.get_user_by_id(id)
         update_data = user_data.model_dump(exclude_unset=True)
+        update_data['updated_at'] = datetime.now()
         if update_data:
             update_result = await user_to_update.update({"$set": update_data})
             print('Holaa')

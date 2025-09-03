@@ -52,8 +52,9 @@ class PlantRepository:
         plants = await Plant.aggregate(aggregation_pipeline=pipeline, projection_model=Plant).to_list()
         return plants
     
-    async def get_all_plants(self):
-        result = await Plant.find_all().to_list()
+    async def get_all_verified_plants(self):
+        query = {"is_verified": True}
+        result = await Plant.find(query).to_list()
         return result
     
     async def is_plant_in_db(self, scientific_name: str) -> bool:

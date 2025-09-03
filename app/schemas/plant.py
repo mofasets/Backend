@@ -2,6 +2,9 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from beanie import Document
 from bson import ObjectId
+from datetime import datetime, timezone
+
+
 
 class Plant(Document):
     """
@@ -14,6 +17,9 @@ class Plant(Document):
     specific_diseases: List[str]
     image_filename: Optional[str] = None
     is_verified: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 
 

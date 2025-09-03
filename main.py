@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):
     print("Iniciando aplicación y conectando a la base de datos...")
     await init_db()
     app.state.recommender = RecommendationService()
-    await app.state.recommender.load_model()
+    app.state.recommender.load_model_from_disk()
     yield 
     print("Cerrando la aplicación...")
 
