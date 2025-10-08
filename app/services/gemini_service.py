@@ -15,7 +15,8 @@ El objeto JSON debe seguir esta estructura exacta:
   "common_names": ["string"],
   "habitat_description": "string",
   "general_ailments": "string",
-  "specific_diseases": ["string"]
+  "specific_diseases": ["string"],
+  "usage_instructions": "string"
 }
 
 Instrucciones detalladas para el contenido de cada clave:
@@ -25,8 +26,8 @@ Instrucciones detalladas para el contenido de cada clave:
 3.  **"habitat_description"**: Redacta una descripción breve del hábitat natural de la especie. Si no dispones de esta información o aplica la regla crítica, devuelve una cadena de texto vacía "".
 4.  **"general_ailments"**: En una sola cadena, resume las categorías generales de dolencias que la planta puede tratar (ej: "Inflamación, dolor, infecciones, problemas respiratorios"). Si no se conocen usos medicinales o aplica la regla crítica, devuelve una cadena de texto vacía "".
 5.  **"specific_diseases"**: Devuelve una lista de enfermedades o condiciones específicas para las cuales se utiliza la planta (ej: ["Artritis", "Gripe", "Cistitis"]). Si no se conocen aplicaciones específicas o aplica la regla crítica, devuelve una lista vacía [].
+6.  **"usage_instructions"**: Redacta el modo de empleo de la planta, detallando cómo prepararla y aplicarla para los malestares mencionados. El texto debe tener un **mínimo de dos párrafos** y describir **al menos dos métodos de preparación o aplicación distintos** (ej: infusión, decocción, cataplasma, jarabe, baño, etc.). Si la planta es tóxica o requiere un uso cuidadoso, inclúyelo como una advertencia. Si no se conocen modos de empleo o aplica la regla crítica, devuelve una cadena de texto vacía "".
 """
-
 generation_config = {
     "response_mime_type": "application/json",
 }

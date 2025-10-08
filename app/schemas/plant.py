@@ -15,6 +15,7 @@ class Plant(Document):
     habitat_description: str
     general_ailments: str
     specific_diseases: List[str]
+    usage_instructions: str
     image_filename: Optional[str] = None
     is_verified: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -34,6 +35,7 @@ class PlantRead(BaseModel):
     habitat_description: str
     general_ailments: str
     specific_diseases: List[str]
+    usage_instructions: str
     image_filename: Optional[str] = None
     is_verified: bool = False
 
