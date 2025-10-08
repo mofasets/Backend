@@ -19,6 +19,7 @@ class RecommendationService:
         self.model_path = Path(model_path)
         self.plants_df = None
         self.cosine_sim_matrix = None
+        self.tfidf_vectorizer = None
         self.indexes = None
         self.is_ready = None
         self.model_path.mkdir(parents=True, exist_ok=True)
@@ -26,6 +27,7 @@ class RecommendationService:
     def _get_model_files(self):
         """Devuelve las rutas de los archivos del modelo."""
         return {
+            "vectorizer": self.model_path / "tfidf_vectorizer.pkl",
             "matrix": self.model_path / "cosine_sim_matrix.pkl",
             "indexes": self.model_path / "indexes.pkl",
             "dataframe": self.model_path / "plants_df.pkl"
@@ -62,13 +64,15 @@ class RecommendationService:
             self.plants_df['specific_diseases'].apply(join_list_or_empty)
         )
 
-        tfidf = TfidfVectorizer(stop_words=stop_words_es)
-        tfidf_matrix = tfidf.fit_transform(self.plants_df['content'])
+        self.tfidf_vectorizer = TfidfVectorizer(stop_words=stop_words_es)
+        tfidf_matrix = self.tfidf_vectorizer.fit_transform(self.plants_df['content'])
 
         self.cosine_sim_matrix = cosine_similarity(tfidf_matrix, tfidf_matrix)
         self.is_ready = True
 
         files = self._get_model_files()
+        with open(files["vectorizer"], "wb") as f:
+            pickle.dump(self.tfidf_vectorizer, f)
         with open(files["matrix"], "wb") as f:
             pickle.dump(self.cosine_sim_matrix, f)
         with open(files["indexes"], "wb") as f:
@@ -86,6 +90,8 @@ class RecommendationService:
         files = self._get_model_files()
         
         try:
+            with open(files["vectorizer"], "rb") as f:
+                self.tfidf_vectorizer = pickle.load(f)
             with open(files["matrix"], "rb") as f:
                 self.cosine_sim_matrix = pickle.load(f)
             with open(files["indexes"], "rb") as f:
