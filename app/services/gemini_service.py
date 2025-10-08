@@ -37,17 +37,20 @@ async def get_info_by_plant(image_bytes: bytes):
         api_key = config_settings.GEMINI_API_KEY
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(
-            'gemini-1.5-flash',
-            generation_config=generation_config
+            'gemini-2.5-flash-lite',
+            generation_config=generation_config,
         )
-
         img = Image.open(io.BytesIO(image_bytes))
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
 
         img.thumbnail((512, 512), Image.Resampling.LANCZOS)
         response = await model.generate_content_async([PROMPT, img])
-
-        return json.loads(response.text)
+        
+        raw_text = response.text
+        cleaned_text = raw_text.strip().replace("```json", "").replace("```", "").strip()
+        
+        return json.loads(cleaned_text)
+    
     except Exception as e:
         return {"error": f"Error al procesar la imagen con Gemini: {e}"}

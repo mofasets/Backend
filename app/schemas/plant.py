@@ -20,9 +20,6 @@ class Plant(Document):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-
-
-
     class Settings:
         name = "plants"
 

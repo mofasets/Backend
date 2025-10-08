@@ -69,3 +69,4 @@ class PlantRepository:
         new_plant = Plant(**plant)
         await new_plant.insert()
         return new_plant
+    

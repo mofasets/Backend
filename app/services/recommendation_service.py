@@ -110,10 +110,11 @@ class RecommendationService:
 
         data_in_dicts = [plant.model_dump() for plant in interactions_pointer]
         viewed_plant_ids = [str(interaction['plant_id']) for interaction in data_in_dicts]
-
+        
+        # Si no hay plantas visualizadas por el usuario, se le envian las plantas con mayor interacciones.
         if not viewed_plant_ids:
-            return []
-
+            return InteractionRepository().get_most_viewed_plants(limit=top_n)
+        
         all_recommendations: Dict[str, float] = {}
         for plant_id in viewed_plant_ids:
             if plant_id not in self.indexes:
@@ -140,7 +141,3 @@ class RecommendationService:
             result_plants.append(aux.model_dump())
         return result_plants
     
-if __name__ == "__main__":
-    print("Starting nightly model training...")
-    asyncio.run(main())
-    print("Training finished.")

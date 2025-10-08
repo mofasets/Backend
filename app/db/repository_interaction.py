@@ -1,4 +1,5 @@
 from app.schemas.interaction import Interaction
+from app.schemas.plant import Plant
 from typing import List
 from bson import ObjectId
 from fastapi.exceptions import HTTPException
@@ -45,3 +46,23 @@ class InteractionRepository:
 
         interaction_document = await Interaction.find_one(query)
         return interaction_document
+    
+    async def get_most_viewed_plants(self, limit: int = 10):   
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$plant_id",  # Agrupar por plant_id
+                    "interaction_count": {"$sum": 1} # Contar interacciones por grupo
+                }
+            },
+            {
+                "$sort": {"interaction_count": -1} # Ordenar de mayor a menor
+            },
+            {
+                "$limit": limit # Limitar al top N
+            }
+        ]
+        cursor = await Interaction.aggregate(aggregation_pipeline=pipeline).to_list()
+
+        top_plant_ids = [Plant(id=doc['_id']) for doc in await cursor.to_list(length=limit)]
+        return top_plant_ids
