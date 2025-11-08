@@ -18,6 +18,9 @@ class Plant(Document):
     usage_instructions: str
     image_filename: Optional[str] = None
     is_verified: bool = False
+    taxonomy: Optional[str]
+    active_ingredient: Optional[str]
+    references: List[str]
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -38,7 +41,9 @@ class PlantRead(BaseModel):
     usage_instructions: str
     image_filename: Optional[str] = None
     is_verified: bool = False
-
+    taxonomy: Optional[str]
+    active_ingredient: Optional[str]
+    references: List[str]
 
 
     @field_validator("id", mode="before")

@@ -41,7 +41,6 @@ class PlantRepository:
                     "$text": {
                         "$search": query
                     },
-                    "is_verified": True
                 }
             },
             {
