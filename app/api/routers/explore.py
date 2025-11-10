@@ -13,7 +13,7 @@ explore_router = APIRouter(prefix='/explore')
 TAGS = ['Explore']
 
 medicinal_plants = []
-IMAGE_DIR = Path("static/images/plants")
+IMAGE_DIR = Path("app/static/images/plants")
 
 @explore_router.post('/recognize_img', tags=TAGS, response_model=RecognitionResponse)
 async def explore_recognize_img(img: UploadFile = File(...), plant_repo: PlantRepository = Depends(PlantRepository), interaction_repo: InteractionRepository = Depends(InteractionRepository), my_user=Depends(decode_token)):
@@ -21,8 +21,8 @@ async def explore_recognize_img(img: UploadFile = File(...), plant_repo: PlantRe
 
     img_bytes_content = await img.read()
     plant_info = await get_info_by_plant(img_bytes_content)
-    print(plant_info)
     scientific_name = plant_info.get('scientific_name') if isinstance(plant_info, dict) else None
+    
     if not scientific_name or not scientific_name.strip():
         raise HTTPException(
             status_code=502,
@@ -31,6 +31,7 @@ async def explore_recognize_img(img: UploadFile = File(...), plant_repo: PlantRe
 
     is_store = await plant_repo.is_plant_in_db(plant_info.get('scientific_name'))
     plant_in_db = await plant_repo.get_plant_by_scientific_name(plant_info.get('scientific_name'))
+    
     if not is_store and plant_info.get('scientific_name'):
 
         scientific_name = plant_info.get('scientific_name')

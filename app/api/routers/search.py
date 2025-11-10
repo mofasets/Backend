@@ -19,3 +19,9 @@ async def search_index(user_id: str, recommender: RecommendationService = Depend
 async def search_search_query(search_query: str, plant_repo: PlantRepository = Depends(PlantRepository), my_user = Depends(decode_token)):
     plants_result = await plant_repo.get_plants_by_query(search_query)
     return plants_result
+
+@search_router.get('/all', tags=TAGS, response_model=List[PlantRead])
+async def search_all(plant_repo: PlantRepository = Depends(PlantRepository), my_user = Depends(decode_token)):
+    recommended_plants = await plant_repo.get_all_verified_plants()
+    return recommended_plants
+

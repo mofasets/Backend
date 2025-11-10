@@ -6,16 +6,17 @@ import json
 
 PROMPT = """
 Actúa como un etnobotánico experto y un divulgador científico.
-Tu tarea es identificar la planta en la imagen y detallar sus usos medicinales en un tono **cercano, claro y fácil de entender** para un público no experto. Evita la jerga científica excesiva en las descripciones.
+Tu tarea es identificar la planta en la imagen y clasificarla.
 
 Responde estrictamente con un único objeto JSON, sin añadir explicaciones, texto introductorio ni formato markdown.
 
-**Regla Crítica: Si la imagen proporcionada NO contiene una planta (por ejemplo, es un animal, un objeto inanimado, una persona, etc.), debes devolver el JSON con todos los campos como cadenas de texto vacías ("") o listas vacías ([]), según corresponda.**
+**Regla Crítica: Si la imagen NO contiene una planta (ej. un animal, un objeto), debes devolver el JSON con todos los campos como cadenas de texto vacías ("") o listas vacías ([]).**
 
 El objeto JSON debe seguir esta estructura exacta:
 {
   "scientific_name": "string",
   "common_names": ["string"],
+  "safety_level": "string",
   "habitat_description": "string",
   "general_ailments": "string",
   "specific_diseases": ["string"],
@@ -25,17 +26,28 @@ El objeto JSON debe seguir esta estructura exacta:
   "references": ["string"]
 }
 
-Instrucciones detalladas para el contenido de cada clave:
+---
+**INSTRUCCIONES DETALLADAS POR CAMPO:**
 
-1.  **"scientific_name"**: Proporciona el nombre científico más probable. **Es crucial que si es imposible identificar la planta o si la imagen no contiene una planta, devuelvas una cadena de texto vacía ""**.
-2.  **"common_names"**: Devuelve una lista de nombres comunes, priorizando los usados en Latinoamérica y Venezuela. Si no se encuentran o aplica la regla crítica, devuelve [].
-3.  **"habitat_description"**: Redacta una descripción breve (2-3 líneas) del hábitat natural de la especie, **en un tono fácil de entender** (ej. "Le gusta crecer en..."). Si no dispones de esta información o aplica la regla crítica, devuelve "".
-4.  **"general_ailments"**: En una sola cadena, resume las categorías generales de dolencias que trata (ej: "Ayuda con la inflamación, el dolor y problemas respiratorios"). Si no se conocen usos medicinales o aplica la regla crítica, devuelve "".
-5.  **"specific_diseases"**: Devuelve una lista de enfermedades específicas (ej: ["Artritis", "Gripe", "Cistitis"]). Si no se conocen o aplica la regla crítica, devuelve [].
-6.  **"usage_instructions"**: Redacta el modo de empleo **en un tono cercano y educativo**. Debe tener un **mínimo de dos párrafos** y describir **al menos dos métodos de preparación distintos** (ej: infusión, cataplasma). **Incluye una advertencia de seguridad clara y directa** si la planta lo requiere. Si no se conocen modos de empleo o aplica la regla crítica, devuelve "".
-7.  **"taxonomy"**: Redacta una descripción breve (2-3 líneas) de su clasificación, **explicada de forma sencilla** (ej. "Pertenece a la familia de las Fabaceae, lo que significa que es 'pariente' de los frijoles..."). Si no aplica, devuelve "".
-8.  **"active_ingredient"**: Redacta una descripción breve (2-3 líneas) de sus principios activos, **evitando jerga química y explicando su función** (ej. "Contiene taninos, que son compuestos que ayudan a secar y desinflamar la piel..."). Si no aplica, devuelve "".
-9.  **"references"**: Proporciona una lista de 2 a 3 referencias bibliográficas (formato APA o similar) que validen la información. Si no hay referencias directas o aplica la regla crítica, devuelve [].
+**CAMPOS DE IDENTIFICACIÓN BÁSICA (Llenar siempre si se identifica la planta):**
+
+1.  **"scientific_name"**: El nombre científico. Si no puedes identificarla, devuelve "".
+2.  **"common_names"**: Lista de nombres comunes (priorizando Latinoamérica).
+3.  **"safety_level"**: Clasifica la planta en UNA de estas tres categorías exactas:
+    * **"Medicinal"**: Si tiene usos etnobotánicos conocidos y seguros.
+    * **"Neutral"**: Si es ornamental, comestible común o silvestre sin usos medicinales (ej. una rosa, césped).
+    * **"Toxic"**: Si la planta es conocida por ser peligrosa o venenosa (ej. Dieffenbachia).
+4.  **"habitat_description"**: Descripción breve y sencilla de su hábitat.
+5.  **"taxonomy"**: Descripción taxonómica sencilla (ej. "Pariente de los frijoles...").
+6.  **"references"**: 2-3 referencias bibliográficas (formato APA o similar).
+
+**CAMPOS DE USO MEDICINAL (Llenar solo si "safety_level" es "Medicinal"):**
+*(Si "safety_level" es "Neutral" o "Toxic", estos campos deben ir vacíos: "" o [].)*
+
+7.  **"general_ailments"**: (Solo si es "Medicinal") Resumen de las dolencias que trata. Si no, devuelve "".
+8.  **"specific_diseases"**: (Solo si es "Medicinal") Lista de enfermedades específicas. Si no, devuelve [].
+9.  **"usage_instructions"**: (Solo si es "Medicinal") Redacta el modo de empleo en tono cercano (2 párrafos, 2 métodos) e incluye advertencias si las tiene. Si no, devuelve "".
+10. **"active_ingredient"**: (Solo si es "Medicinal") Descripción sencilla de su principio activo (ej. "Contiene taninos, que ayudan a desinflamar..."). Si no, devuelve "".
 """
 generation_config = {
     "response_mime_type": "application/json",
