@@ -1,7 +1,9 @@
 from . import (
     auth,
+    plant,
     search,
     explore,
     settings,
-    show
+    show,
+    user
 )

@@ -2,6 +2,7 @@ from typing import List, Optional
 from app.schemas.plant import Plant, PlantRead
 from beanie.operators import In
 from bson import ObjectId
+from beanie import PydanticObjectId
 from fastapi import HTTPException
 
 class PlantRepository:
@@ -56,6 +57,11 @@ class PlantRepository:
         result = await Plant.find(query).to_list()
         return result
     
+    async def get_all_non_verified_plants(self):
+        query = {"is_verified": False}
+        result = await Plant.find(query).to_list()
+        return result
+    
     async def is_plant_in_db(self, scientific_name: str) -> bool:
         """check if a plant is in the database"""
         plant = await Plant.find_one(Plant.scientific_name == scientific_name)
@@ -69,3 +75,14 @@ class PlantRepository:
         await new_plant.insert()
         return new_plant
     
+    async def update_plant(self, plant_id: PydanticObjectId, update_data: dict[str:str]) -> PlantRead:
+        plant_to_update = await Plant.get(plant_id)
+        
+        if not plant_to_update:
+            return None
+
+        update_data_filtered = {k: v for k, v in update_data.items() if v is not None}
+        await plant_to_update.update({"$set": update_data_filtered})
+        updated_plant_doc = await Plant.get(plant_id)
+
+        return PlantRead.model_validate(updated_plant_doc)

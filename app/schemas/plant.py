@@ -61,6 +61,19 @@ class PlantRead(BaseModel):
         json_encoders = {
             ObjectId: str  # Cuando encuentres un ObjectId, conviértelo a string
         }
+
+class PlantForm(BaseModel):
+    scientific_name: str
+    common_names: str
+    habitat_description: str
+    general_ailments: str
+    specific_diseases: str
+    usage_instructions: str
+    taxonomy: str
+    active_ingredient: str
+    safety_level: str = "Medicinal"
+    references: Optional[str] = ""
+
 class RecognitionResponse(BaseModel):
     """
     Modelo que representa la respuesta completa del endpoint de reconocimiento de imágenes.

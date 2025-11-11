@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routers import search, explore, settings, auth, show
+from app.api.routers import search, explore, settings, auth, show, plant, user
 from contextlib import asynccontextmanager
 from app.db.database import init_db
 from app.core.config import config_settings
@@ -46,4 +46,6 @@ app.include_router(search.search_router)
 app.include_router(settings.settings_router)
 app.include_router(auth.auth_router)
 app.include_router(show.show_router)
+app.include_router(plant.plant_router)
+app.include_router(user.user_router)
 

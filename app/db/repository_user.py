@@ -1,10 +1,11 @@
 from app.schemas.user import User, UserUpdate, UserRead, UserCreate
-from typing import Optional
+from typing import Optional, List
 from bson import ObjectId
 from fastapi import HTTPException
 import bcrypt
 from app.core.security import get_password_hash
 from datetime import datetime
+
 
 
 def hash_password(password: str) -> str:
@@ -37,7 +38,6 @@ class UserRepository:
         update_data['updated_at'] = datetime.now()
         if update_data:
             update_result = await user_to_update.update({"$set": update_data})
-            print('Holaa')
             if update_result:
                 user_to_update = await User.find_one({"_id": ObjectId(id)})
         return user_to_update
@@ -69,3 +69,8 @@ class UserRepository:
         )
         await user_obj.create()
         return user_obj
+
+    async def get_all_users(self) -> List[User]:
+        result = await User.find().to_list()
+        return result
+
