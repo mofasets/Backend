@@ -1,5 +1,5 @@
 from app.schemas.interaction import Interaction
-from app.schemas.plant import Plant
+from app.schemas.plant import Plant, PlantRead
 from typing import List
 from bson import ObjectId
 from fastapi.exceptions import HTTPException
@@ -13,8 +13,44 @@ class InteractionRepository:
             user_obj_id = ObjectId(user_id)
         except Exception:
             raise HTTPException(status_code=400, detail="El ID proporcionado no es un ObjectId válido")
+
+        pipeline = [
+            {
+                "$match": {
+                    "user_id": user_obj_id
+                }
+            },
+            {
+                "$lookup": {
+                    "from": Plant.Settings.name,
+                    "localField": "plant_id",
+                    "foreignField": "_id",
+                    "as": "plant_details"
+                }
+            },
+            {
+                "$unwind": "$plant_details"
+            },
+            {
+                "$match": {
+                    "plant_details.is_verified": True
+                }
+            },
+            {
+                "$project": {
+                    "_id": "$_id",
+                    "user_id": "$user_id",
+                    "plant_id": "$plant_id",
+                    "interaction_type": "$interaction_type",
+                    "interaction_date": "$interaction_date" 
+                }
+            }
+        ]
+
+        cursor = Interaction.aggregate(aggregation_pipeline=pipeline)
+        results_as_dicts = await cursor.to_list()
+        response = [Interaction(**doc) for doc in results_as_dicts]
         
-        response = await Interaction.find(Interaction.user_id == user_obj_id).to_list()
         return response
 
     async def add_interaction(self, content: dict) -> Interaction:
@@ -51,18 +87,34 @@ class InteractionRepository:
         pipeline = [
             {
                 "$group": {
-                    "_id": "$plant_id",  # Agrupar por plant_id
-                    "interaction_count": {"$sum": 1} # Contar interacciones por grupo
+                    "_id": "$plant_id",
+                    "interaction_count": {"$sum": 1}
                 }
             },
             {
-                "$sort": {"interaction_count": -1} # Ordenar de mayor a menor
+                "$sort": {"interaction_count": -1}
             },
             {
-                "$limit": limit # Limitar al top N
+                "$limit": limit
             }
         ]
-        cursor = await Interaction.aggregate(aggregation_pipeline=pipeline).to_list()
+            
+        aggregation_result = await Interaction.aggregate(aggregation_pipeline=pipeline).to_list()
 
-        top_plant_ids = [Plant(id=doc['_id']) for doc in await cursor.to_list(length=limit)]
-        return top_plant_ids
+        top_plant_ids = [doc["_id"] for doc in aggregation_result]
+        if not top_plant_ids:
+            return []
+
+        top_plants = await Plant.find(
+            {"_id": {"$in": top_plant_ids}}
+        ).to_list()                
+        
+        id_to_plant_map = {plant.id: plant for plant in top_plants}
+        
+        sorted_plants = [
+            id_to_plant_map[plant_id] 
+            for plant_id in top_plant_ids 
+            if plant_id in id_to_plant_map
+        ]
+
+        return sorted_plants

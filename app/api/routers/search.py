@@ -4,14 +4,14 @@ from app.db.repository_plant import PlantRepository
 from app.schemas.auth import decode_token
 from app.services.recommendation_service import RecommendationService
 from app.api.dependencies import get_recommender
-from app.schemas.plant import PlantRead
+from app.schemas.plant import PlantRead, Plant
 from pathlib import Path
 
 TAGS = ['Search']
 search_router = APIRouter(prefix='/search')
 
 
-@search_router.get('/index/{user_id}', tags=TAGS, response_model=List[PlantRead])
+@search_router.get('/index/{user_id}', tags=TAGS, response_model=List[Plant])
 async def search_index(user_id: str, recommender: RecommendationService = Depends(get_recommender), my_user = Depends(decode_token)):
     recommended_plants = await recommender.get_recommendations(user_id)
     return recommended_plants

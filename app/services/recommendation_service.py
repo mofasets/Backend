@@ -117,9 +117,8 @@ class RecommendationService:
         data_in_dicts = [plant.model_dump() for plant in interactions_pointer]
         viewed_plant_ids = [str(interaction['plant_id']) for interaction in data_in_dicts]
         
-        # Si no hay plantas visualizadas por el usuario, se le envian las plantas con mayor interacciones.
         if not viewed_plant_ids:
-            return InteractionRepository().get_most_viewed_plants(limit=top_n)
+            return await InteractionRepository().get_most_viewed_plants(limit=top_n)
         
         all_recommendations: Dict[str, float] = {}
         for plant_id in viewed_plant_ids:

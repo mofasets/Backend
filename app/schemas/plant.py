@@ -11,16 +11,16 @@ class Plant(Document):
     Modelo Beanie que representa una planta medicinal en la base de datos.
     """
     scientific_name: str 
-    common_names: List[str] 
-    habitat_description: str
-    general_ailments: str
-    specific_diseases: List[str]
-    usage_instructions: str
+    common_names: List[str] = []
+    habitat_description: Optional[str]
+    general_ailments: Optional[str]
+    specific_diseases: List[str] = []
+    usage_instructions: Optional[str]
     image_filename: Optional[str] = None
     is_verified: bool = False
     taxonomy: Optional[str]
     active_ingredient: Optional[str]
-    references: List[str]
+    references: List[str] = []
     safety_level: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -36,16 +36,15 @@ class PlantRead(BaseModel):
     id: str
     scientific_name: str 
     common_names: List[str] 
-    habitat_description: str
-    general_ailments: str
-    specific_diseases: List[str]
-    usage_instructions: str
+    habitat_description: Optional[str] = None
+    general_ailments: Optional[str] = None
+    specific_diseases: List[str] = [] # (Este ya estaba bien)
+    usage_instructions: Optional[str] = None
     image_filename: Optional[str] = None
     is_verified: bool = False
-    taxonomy: Optional[str]
-    active_ingredient: Optional[str]
-    references: List[str]
-
+    taxonomy: Optional[str] = None
+    active_ingredient: Optional[str] = None
+    references: List[str] = []
 
     @field_validator("id", mode="before")
     @classmethod
@@ -73,6 +72,7 @@ class PlantForm(BaseModel):
     active_ingredient: str
     safety_level: str = "Medicinal"
     references: Optional[str] = ""
+    is_verified: bool
 
 class RecognitionResponse(BaseModel):
     """

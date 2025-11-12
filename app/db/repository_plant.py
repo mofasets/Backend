@@ -86,3 +86,21 @@ class PlantRepository:
         updated_plant_doc = await Plant.get(plant_id)
 
         return PlantRead.model_validate(updated_plant_doc)
+    
+    async def delete_plant(self, plant_id: str) -> Optional[Plant]:
+        """
+        Busca una planta por su ID y la elimina de la base de datos.
+        Devuelve el objeto de planta eliminado (aún en memoria) si se encuentra.
+        """
+        
+        try:
+            object_id = PydanticObjectId(plant_id)
+        except Exception:
+            return None 
+
+        plant_to_delete = await Plant.get(object_id)
+        if not plant_to_delete:
+            return None
+        
+        await plant_to_delete.delete()
+        return plant_to_delete        

@@ -5,7 +5,7 @@ from fastapi import HTTPException
 import bcrypt
 from app.core.security import get_password_hash
 from datetime import datetime
-
+from beanie import PydanticObjectId
 
 
 def hash_password(password: str) -> str:
@@ -74,3 +74,21 @@ class UserRepository:
         result = await User.find().to_list()
         return result
 
+    async def delete_user(self, user_id: str) -> Optional[User]:
+        
+        try:
+            object_id = PydanticObjectId(user_id)
+        except Exception:
+            print(f"ID de usuario mal formado: {user_id}")
+            return None
+        
+        user_to_delete = await User.get(object_id)
+
+        if not user_to_delete:
+            print(f"Usuario no encontrado con ID: {user_id}")
+            return None
+        
+        await user_to_delete.delete()
+        
+        print(f"Usuario {user_to_delete.email} eliminado.")
+        return user_to_delete

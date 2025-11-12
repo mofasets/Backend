@@ -80,7 +80,7 @@ async def show(user_id: str ,user_repo: UserRepository = Depends(UserRepository)
         )
     
 @user_router.put('/update/{user_id}', tags=TAGS, response_model=User)
-async def show(user_id: str , user_data: UserUpdate ,user_repo: UserRepository = Depends(UserRepository), my_user: dict = Depends(decode_token)):
+async def edit_user(user_id: str , user_data: UserUpdate ,user_repo: UserRepository = Depends(UserRepository), my_user: dict = Depends(decode_token)):
     """
     """
     try:
@@ -97,3 +97,36 @@ async def show(user_id: str , user_data: UserUpdate ,user_repo: UserRepository =
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error interno del servidor: {str(e)}"
         )
+    
+@user_router.delete('/delete/{user_id}', tags=TAGS, response_model=User)
+async def delete_user_by_id(user_id: str, user_repo: UserRepository = Depends(UserRepository), my_user: dict = Depends(decode_token)):
+    
+    # if my_user.get("role") != "admin":
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN,
+    #         detail="No tiene permisos para eliminar usuarios."
+    #     )
+
+    # 2. (Recomendado) Evitar que un admin se borre a sí mismo
+    if my_user.get("_id") == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puede eliminarse a sí mismo."
+        )
+
+    try:
+        deleted_user = await user_repo.delete_user(user_id)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El ID de usuario proporcionado no es válido."
+        )
+
+    if not deleted_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado."
+        )
+
+    print(f"Usuario {deleted_user.email} eliminado por {my_user.get('email')}")
+    return deleted_user
