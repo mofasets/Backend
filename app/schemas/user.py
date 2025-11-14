@@ -13,6 +13,7 @@ class User(Document):
     password: Optional[str] = None
     birth_date: Optional[str] = None
     gender: str = None
+    role: str = 'aficionado'
     phone: Optional[str] = None
     country: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -26,6 +27,7 @@ class UserRead(BaseModel):
     id: str
     name: Optional[str] = None
     email: EmailStr
+    role: str
     birth_date: Optional[str] = None
     gender: Optional[str] = None
     phone: Optional[str] = None
@@ -49,6 +51,7 @@ class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
+    role: str = 'aficionado'
     birth_date: str
     gender: str
     phone: str
@@ -57,9 +60,8 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
-    # password: Optional[str] = None
     birth_date: Optional[str] = None
     gender: Optional[str] = None
-    # img_url: Optional[str] = None
+    role: Optional[str] = None
     phone: Optional[str] = None
     country: Optional[str] = None

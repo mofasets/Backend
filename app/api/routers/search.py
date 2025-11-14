@@ -11,7 +11,7 @@ TAGS = ['Search']
 search_router = APIRouter(prefix='/search')
 
 
-@search_router.get('/index/{user_id}', tags=TAGS, response_model=List[Plant])
+@search_router.get('/index/{user_id}', tags=TAGS, response_model=List[PlantRead])
 async def search_index(user_id: str, recommender: RecommendationService = Depends(get_recommender), my_user = Depends(decode_token)):
     recommended_plants = await recommender.get_recommendations(user_id)
     return recommended_plants
