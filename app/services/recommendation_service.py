@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 import pickle
 from pathlib import Path
 
-# nltk.download('stopwords')
+nltk.download('stopwords')
 stop_words_es = stopwords.words('spanish')
 
 class RecommendationService:
